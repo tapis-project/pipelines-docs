@@ -50,15 +50,16 @@ Some of the most salient aspects include:
   1. The Remote Inbox can be configured to be a Globus endpoint or a path on a Tapis system, including a POSIX directory on
      systems available via SSH (e.g., SFTP) and a location in an object store (e.g., AWS S3 buckets).
   2. Files staged to the Remote Inbox include *manifest files*
-  2. The Local Inbox is configured in conjunction with where the pipeline jobs will run (which execution host). For
+  3. The Local Inbox is configured in conjunction with where the pipeline jobs will run (which execution host). For
      example, the Local Inbox could make use of TACC's global file system, Stockyard, a scratch file system on one of
      the HPC systems,
-  3. Pipeline jobs are configured with one or more execution targets, a *primary* and optionally, one or more *secondary*
+  4. Pipeline jobs are configured with one or more execution targets, a *primary* and optionally, one or more *secondary*
      systems at TACC where pipeline jobs will actually run. These can be traditional HPC supercomputers or cloud/high-throughput
      systems. When a primary system is offline, for example, due to a planned maintenance, jobs will be automatically routed
      to a secondary system. (Note: support
-  4. Each pipeline configuration includes a *run schedule* which dictates how new pipeline jobs are scheduled. The options
+  5. Each pipeline configuration includes a *run schedule* which dictates how new pipeline jobs are scheduled. The options
      include a fixed schedule, similar to cron (e.g., run every day at 2 AM), or *streaming*, which runs jobs as soon as
-     new manifest files arrive in the Local Inbox.
+     new manifest files arrive in the Remote Outbox.
 
 
+These are covered in more detail in the User Guide.

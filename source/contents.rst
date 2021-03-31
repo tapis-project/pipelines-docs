@@ -7,7 +7,6 @@ Welcome To Tapis Pipelines Documentation
    :caption: Introduction:
 
    index
-   getting-started/index
 
 
 .. toctree::
