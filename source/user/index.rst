@@ -21,7 +21,7 @@ or one of cloud computing systems. The allocation will be used to run pipeline j
 Packaging and Installation of Analysis (Pipeline Job) Software
 ---------------------------------------------------------------
 The ultimate goal of a pipeline is to process data via one or more programs, defined by the project. This software,
-referred to as the *pipeline job* software, must be packages and accessible to the Tapis Pipelines software.
+referred to as the *pipeline job* software, must be packaged and accessible to the Tapis Pipelines software.
 
 There are a few packaging options available:
 

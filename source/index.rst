@@ -7,20 +7,24 @@ Welcome to the Tapis Pipelines documentation.
 What are Tapis Pipelines?
 _________________________
 Tapis Pipelines automate data analysis workflows on TACC Cloud and HPC resources in a secure, robust, and
-fault-tolerant way. The Tapis Pipelines software integrates directly with the Tapis v3 API Framework to
-allow users to define workflows that incorporate Tapis services such as the Tapis Metadata, Actors (functions-as-a-service),
-Systems, Apps, Jobs and other services.
+fault-tolerant way. The Tapis Pipelines software integrates directly with the `Tapis v3 API Framework <https://tapis.readthedocs.io>`_
+to allow users to define workflows that incorporate Tapis services such as the Tapis Metadata,
+Actors (functions-as-a-service), Systems, Apps, Jobs and other services.
 
 Tapis Pipelines have been architected to fit within broader data analysis processing workflows where only a part of the
 computation actually runs at TACC. This work grew out of collaborations with NASA JPL and partners to support
 the processing of data (exposures) captured by the NEID telescope instrument at Kitt Peak National Observatory. Partner
-institutions included Caltech, IPAC (Infrared Processing & Analysis Center), JPL, Kitt Peak, Penn State, and the
+institutions include Caltech, IPAC (Infrared Processing & Analysis Center), JPL, Kitt Peak, Penn State, and the
 University of Arizona.
 
 There are two ways to build Tapis pipelines. First, the Tapis Pipelines software is available as a Python package that
 can be installed and configured directly on a Linux-compliant machine. This method is available today and provides the
 ability to customize the Pipeline software itself, offering the most flexibility. The second method, currently in development,
 is to utilize the Tapis Pipelines Service, a hosted version of the software developed and maintained by TACC staff.
+
+.. figure:: images/overview.png
+    :width: 1000px
+    :align: center
 
 
 10,000 Foot View
@@ -34,18 +38,12 @@ At a high level, each Tapis Pipeline consists of the following simple steps:
      is referred to as a *pipeline job*.
   4. On successful completion of a pipeline job, output files are copied to the pipeline's *Local Outbox* at TACC where
      validation of the outputs and postprocessing occurs.
-  5. Finally, files in the Local Outbox are transferred to the pipeline's configured *Remote Inbox*.
-
-.. figure:: images/overview.png
-    :width: 1000px
-    :align: center
-
+  5. Finally, files in the Local Outbox are transferred to the pipeline's configured *Remote Inbox*. From there, additional
+     workflow steps can occur outside of TACC.
 
 
 For each step above, there are several configurable aspects, and the software includes mechanisms for ensuring robustness
-and integrity of the pipeline processing.
-
-Some of the most salient aspects include:
+and integrity of the pipeline processing. Some of the most salient aspects include:
 
   1. The Remote Inbox can be configured to be a Globus endpoint or a path on a Tapis system, including a POSIX directory on
      systems available via SSH (e.g., SFTP) and a location in an object store (e.g., AWS S3 buckets).
@@ -62,4 +60,6 @@ Some of the most salient aspects include:
      new manifest files arrive in the Remote Outbox.
 
 
-These are covered in more detail in the User Guide.
+These topics are covered in more detail in the :doc:`user/index`. Additionally, The :doc:`developer/index`
+includes design and implementation details about the Tapis Pipelines software itself, useful for customizing and
+extending the software with new features.
