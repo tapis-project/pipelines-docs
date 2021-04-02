@@ -101,6 +101,8 @@ all the basic configurations available.
 
 *To do, coming soon...*
 
+See example file `neid_conf.json-example` for configuration options.
+
 
 Testing A Pipeline
 ==================
