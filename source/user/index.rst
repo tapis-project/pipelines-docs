@@ -65,7 +65,8 @@ Outbox and Inbox to the Local Outbox and Inbox. From there, Tapis transfers will
 Manifest Files
 --------------
 A key to the Tapis Pipeline architecture is the *manifest file*.
-Pipelines jobs process files that get transferred to the Remote Outbox. Each job will process any number of files, and
+
+Pipeline jobs process files that get transferred to the Remote Outbox. Each job will process any number of files, and
 the number of files processed by a single job is determined by the manifest file. The manifest file is a simple
 JSON file that describes one or more files to be processed by a job. It can include basic validation information
 (such as an MD5 checksum of the file), project generated identifies for the job, and some limited support for
@@ -106,7 +107,7 @@ See example file `neid_conf.json-example` for configuration options.
 
 Testing A Pipeline
 ==================
-A number of measures can be take to validate that a pipeline will run correctly before
+A number of measures can be take to validate that a pipeline will run correctly before using real cycles.
 
 Validate Configuration
 ----------------------
@@ -124,16 +125,91 @@ and the pipeline jobs are unlikely to run correctly.
 Test Pipeline Runs
 ------------------
 In some cases, it can be possible to issue end-to-end test runs of a pipeline using sample data.
+
 *To do, more on this coming soon...*
 
 
 Production Pipelines and Dashboard
 ==================================
 
+The Pipelines software makes use of Tapis Metadata service to track the status of jobs as they progress. We include a simple dashboard for displaying the information. The dashboard code can be deployed relatively quickly to most modern web servers.
 
 
 Troubleshooting and FAQ
 =======================
 
 *Coming soon...*
+
+
+Steps in Pipeline
+=================
+
+These steps are designed to be somewhat idempotent, so that each step may be run multiple times and it will not harm existing ore previously finished jobs.
+
+This helps to faciliate the automation of the jobs.
+
+Each job is associated with an input data set and each is tracked separately using Tapis Metadata service.
+
+Get Remote
+----------
+
+This downloads input files from the remote source. It scans the remote source (Remote Outbox) for files which have not already been downloaded and initiates transfer.
+
+Once transferred, it sets the metadata to transfer_to_local_done. 
+
+If required by the app, it also unpacks the data (e.g. if it is inside a .tar file.) It then sets the metadata to unpack_on_local_done. 
+
+The implementation of this step is captured in the 'get-remote-via-globus-personal.py' script.
+
+Compute Job
+-----------
+
+This submits the job to the computing resource, determines that the compute job has finished, and optionally runs post-compute checks. These checks can determine if the job finished correctly or should be resubmitted.
+
+In the case of submitting a Slurm job to a queue, it creates the sbatch file from a template. Since this template is application specific, it is provided by the project. A simple example of such a template is provided in the repository (sbatch_template.j2).
+
+This step can optionally have several components or sub-steps, as required by the project. Complex decision trees are possible within this step.
+
+Once processing is finished, metadata is set to processing_data_done.
+
+The implementation of this step is captured in the 'compute-local-jobs-auto.py' script.
+
+
+
+
+Send Results
+------------
+
+This packs up the job output and sends it back to the Remote Inbox. It optionally packs the data into an archive file (e.g. tar). 
+
+Once transfer is finished, metadata is set to transfer_to_remote_done.
+
+The implementation of this step is captured in the 'send-results-via-globus-personal.py' script.
+
+
+Finished Pipeline
+-----------------
+
+Once the output is successfully transferred to Remote storage, the pipeline for this job is considered complete and metadata is set to pipeline_done.
+
+
+
+
+
+Automating the Steps
+====================
+
+In a future release, these components may be launched via more advanced Tapis API processes (e.g. Actors, Jobs, etc.)
+
+We include examples of scripts to run the various steps periodically from cron. Each runs separately so that they do not need to wait for each other to finish. They record the output of the scripts in dated files.
+
+
+.. code-block:: bash
+
+  $ crontab -l
+  SHELL=/bin/bash
+  1 * * * * . /etc/profile; $HOME/pipeline/01runget
+  2 * * * * . /etc/profile; $HOME/pipeline/02runcompute
+  3 * * * * . /etc/profile; $HOME/pipeline/03runtarup
+  4 * * * * . /etc/profile; $HOME/pipeline/04runsend
 
