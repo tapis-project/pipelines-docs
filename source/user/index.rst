@@ -6,8 +6,15 @@ This User guide provides a complete reference to using the Tapis Pipeline softwa
 
 Overview and Prerequisites
 ==========================
+
+The Tapis Pipeline software is designed to assist you in running recurring computational jobs against multiple data sets. The design is based on the idea of ETL <https://en.wikipedia.org/wiki/Extract,_transform,_load>. It has been designed with TACC resources in mind, but should be broadly applicable to others' as well. The general idea is:
+
+  1. Download input data from remote source
+  2. Compute data using whatever software you like
+  3. Send resulting output back to a remote storage site
+
 Before you begin building your first Tapis Pipeline, there are a few decisions to make and some prerequisites your
-project should meet. We collect these here. Think of it as checklist
+project should meet. We collect these here. Think of it as checklist.
 
 TACC Storage and Computing Allocation
 -------------------------------------
@@ -15,7 +22,7 @@ Your project will need a storage allocation on some TACC storage resource (for e
 Cloud-based storage resources) to serve as the project's Local Inbox and Outbox. The size of the required allocation
 greatly depends on the size of the files that will be processed in the pipeline.
 
-Your project will also need one or more allocations on a computing system at TACC, such as Frontera, Stampede2, LoneStar5,
+Your project will also need one or more allocations on a computing system at TACC, such as Frontera, Stampede2, Lonestar5,
 or one of cloud computing systems. The allocation will be used to run pipeline jobs.
 
 Packaging and Installation of Analysis (Pipeline Job) Software
