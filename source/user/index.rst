@@ -7,11 +7,13 @@ This User guide provides a complete reference to using the Tapis Pipeline softwa
 Overview and Prerequisites
 ==========================
 
-The Tapis Pipeline software is designed to assist you in running recurring computational jobs against multiple data sets. The design is based on the idea of ETL <https://en.wikipedia.org/wiki/Extract,_transform,_load>. It has been designed with TACC resources in mind, but should be broadly applicable to others' as well. The general idea is:
+The Tapis Pipeline software is designed to assist you in running recurring computational jobs against multiple data sets.
+The design is based on the idea of `ETL <https://en.wikipedia.org/wiki/Extract,_transform,_load>`_. It has been designed
+with TACC resources in mind, but should be broadly applicable to other resources as well. The general idea is:
 
-  1. Download input data from remote source
-  2. Compute data using whatever software you like
-  3. Send resulting output back to a remote storage site
+  * Download input data from remote source (the Remote Outbox) to TACC (the Local Inbox).
+  * Compute data products from the input using whatever software you like (the pipeline job software).
+  * Send resulting output from TACC (the Local Outbox) back to a remote storage site (the Remote Inobx).
 
 Before you begin building your first Tapis Pipeline, there are a few decisions to make and some prerequisites your
 project should meet. We collect these here. Think of it as checklist.
@@ -33,8 +35,9 @@ referred to as the *pipeline job* software, must be packaged and accessible to t
 There are a few packaging options available:
 
   1. Create a container image with the job software. We recommend using Singularity containers for running jobs on HPC
-     systems and Docker containers for running jobs on cloud resources, such as the Kubernetes Freetail system.
-  2. Package the software using conventional methods, such as RPMs or Python packages.
+     systems and Docker, or a container runtime that supports the k8s Container Runtime Interface (CRI), for running jobs
+     on cloud resources, such as the Kubernetes Freetail system.
+  2. Package the software using conventional methods, such as RPMs, Python packages, Ruby gems, git repositories, etc.
 
 These lead to the following installation options:
 
@@ -80,6 +83,14 @@ has completed. No files in the Remote Outbox will be processed until they are in
 The manifest file must adhere to a required format described by a JSON Schema. Invalid manifest files are never
 processed.
 
+The following describes the format of the mainfest file.
+
+.. jsonschema:: https://raw.githubusercontent.com/tapis-project/pipelines/master/core/manifest_schema.json
+  :auto_reference:
+  :auto_target:
+  :lift_definitions:
+
+
 
 Installing Tapis Pipelines Software
 ===================================
@@ -97,12 +108,14 @@ Alternatively, you can install Tapis Pipelines from source by checking out the
 
 Configuration of Tapis Pipelines
 ================================
-An instance of the Tapis Pipelines software must be configured for a specific pipeline. In this section we cover
-all the basic configurations available.
+An instance of the Tapis Pipelines software must be configured for a specific pipeline. The configuration is
+provided as a JSON file that conforms to the Tapis Pipeline config JSON Schema definition.
 
-*To do, coming soon...*
 
-See example file `neid_conf.json-example` for configuration options.
+.. jsonschema:: https://raw.githubusercontent.com/tapis-project/pipelines/master/core/configschema.json
+  :auto_reference:
+  :auto_target:
+  :lift_definitions:
 
 
 Testing A Pipeline
@@ -132,7 +145,9 @@ In some cases, it can be possible to issue end-to-end test runs of a pipeline us
 Production Pipelines and Dashboard
 ==================================
 
-The Pipelines software makes use of Tapis Metadata service to track the status of jobs as they progress. We include a simple dashboard for displaying the information. The dashboard code can be deployed relatively quickly to most modern web servers.
+The Pipelines software makes use of Tapis Metadata service to track the status of jobs as they progress. We include a
+simple dashboard for displaying the information. The dashboard code can be deployed relatively quickly to most modern
+web servers.
 
 
 Troubleshooting and FAQ
@@ -140,76 +155,4 @@ Troubleshooting and FAQ
 
 *Coming soon...*
 
-
-Steps in Pipeline
-=================
-
-These steps are designed to be somewhat idempotent, so that each step may be run multiple times and it will not harm existing ore previously finished jobs.
-
-This helps to faciliate the automation of the jobs.
-
-Each job is associated with an input data set and each is tracked separately using Tapis Metadata service.
-
-Get Remote
-----------
-
-This downloads input files from the remote source. It scans the remote source (Remote Outbox) for files which have not already been downloaded and initiates transfer.
-
-Once transferred, it sets the metadata to transfer_to_local_done. 
-
-If required by the app, it also unpacks the data (e.g. if it is inside a .tar file.) It then sets the metadata to unpack_on_local_done. 
-
-The implementation of this step is captured in the 'get-remote-via-globus-personal.py' script.
-
-Compute Job
------------
-
-This submits the job to the computing resource, determines that the compute job has finished, and optionally runs post-compute checks. These checks can determine if the job finished correctly or should be resubmitted.
-
-In the case of submitting a Slurm job to a queue, it creates the sbatch file from a template. Since this template is application specific, it is provided by the project. A simple example of such a template is provided in the repository (sbatch_template.j2).
-
-This step can optionally have several components or sub-steps, as required by the project. Complex decision trees are possible within this step.
-
-Once processing is finished, metadata is set to processing_data_done.
-
-The implementation of this step is captured in the 'compute-local-jobs-auto.py' script.
-
-
-
-
-Send Results
-------------
-
-This packs up the job output and sends it back to the Remote Inbox. It optionally packs the data into an archive file (e.g. tar). 
-
-Once transfer is finished, metadata is set to transfer_to_remote_done.
-
-The implementation of this step is captured in the 'send-results-via-globus-personal.py' script.
-
-
-Finished Pipeline
------------------
-
-Once the output is successfully transferred to Remote storage, the pipeline for this job is considered complete and metadata is set to pipeline_done.
-
-
-
-
-
-Automating the Steps
-====================
-
-In a future release, these components may be launched via more advanced Tapis API processes (e.g. Actors, Jobs, etc.)
-
-We include examples of scripts to run the various steps periodically from cron. Each runs separately so that they do not need to wait for each other to finish. They record the output of the scripts in dated files.
-
-
-.. code-block:: bash
-
-  $ crontab -l
-  SHELL=/bin/bash
-  1 * * * * . /etc/profile; $HOME/pipeline/01runget
-  2 * * * * . /etc/profile; $HOME/pipeline/02runcompute
-  3 * * * * . /etc/profile; $HOME/pipeline/03runtarup
-  4 * * * * . /etc/profile; $HOME/pipeline/04runsend
 
